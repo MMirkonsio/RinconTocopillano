@@ -37,10 +37,10 @@ const Navbar = () => {
   }, []); // El segundo argumento vacío asegura que useEffect solo se ejecute al montar y desmontar
 
   return (
-    <nav className={`bg-gray-100 p-4 z-10 text-gray-700 fixed left-0 top-0 flex flex-col w-full justify-between lg:shadow dark:bg-gray-900 dark:text-gray-100 ${menuOpen ? 'h-auto w-screen' : 'h-screen w-screen'}`}>
+    <nav className={`bg-gray-100 p-4 z-10 text-gray-700 fixed left-0 top-0 flex flex-col lg:w-80 justify-between lg:shadow dark:bg-gray-900 dark:text-gray-100 ${menuOpen ? 'h-auto w-screen' : 'h-screen w-screen'}`}>
       <div className="epilogue">
         {/* Hamburger Menu Icon for Mobile */}
-        <div className="lg:hidden mb-5">
+        <div className="lg:hidden">
           <MenuIcon menuOpen={menuOpen} toggleMenu={toggleMenu} />
         </div>
           
