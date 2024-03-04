@@ -4,6 +4,7 @@ import HomeScreen from './screens/HomeScreen';
 import Publicaciones from './components/Publicaciones';
 import PublicacionScreen from './screens/PublicacionScreen';
 
+
 function App() {
   return (
     <Router>
@@ -16,15 +17,16 @@ function App() {
           <Route
             path="/"
             element={
-              <div className="flex items-center relative lg:left-80 lg:top-10 m-3 top-24">
+              <div className="flex items-center justify-center lg:mt-10 lg:ml-auto mt-24 lg:w-5/6">
                 <HomeScreen />
               </div>
+
             }
           />
           <Route
             path="/inicio"
             element={
-              <div className="flex items-center relative lg:left-80 lg:top-10 m-3 top-24">
+              <div className="flex items-center mx-auto mb-auto py-2 px-2 m-2 w-3/4">
                 <HomeScreen />
               </div>
             }
@@ -32,7 +34,7 @@ function App() {
           <Route
             path="/publicaciones"
             element={
-              <div className="flex items-center relative lg:left-80 lg:top-10 m-3 top-24">
+              <div className="flex items-center relative lg:left-80 lg:top-10 m-3 top-24 w-fit">
                 <Publicaciones />
               </div>
             }
@@ -40,7 +42,7 @@ function App() {
           <Route
             path="/publicar"
             element={
-              <div className="flex items-center relative lg:left-80 lg:top-10 m-3 top-24">
+              <div className="flex items-center relative lg:left-80 lg:top-10 m-3 top-24 ">
                 <PublicacionScreen />
               </div>
             }
