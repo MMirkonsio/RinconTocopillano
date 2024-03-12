@@ -1,44 +1,54 @@
-import { useState } from 'react';
+import { useState, useEffect } from "react";
+import axios from "axios";
+import PropTypes from "prop-types";
 
 const MasPopular = () => {
-  // Datos ficticios de comunidades populares
-  const [comunidades] = useState([
-    { id: 1, nombre: 'TocoTurbo' },
-    { id: 2, nombre: 'DragonRoll' },
-    { id: 3, nombre: 'Stori Voris' },
-    { id: 4, nombre: 'Ligo Leyen' },
-    { id: 5, nombre: 'Churros con Manjar' },
-    { id: 6, nombre: 'Marble Falls' },
-    { id: 7, nombre: 'New Community 1' },
-    { id: 8, nombre: 'New Community 2' },
-    { id: 9, nombre: 'New Community 3' },
-    { id: 10, nombre: 'New Community 1111111' },
-    { id: 11, nombre: 'New Community 222222222' },
-    { id: 12, nombre: 'New Community 333333333' },
-    // Añade más comunidades según sea necesario
-  ]);
+  const [publicacionesPopulares, setPublicacionesPopulares] = useState([]);
 
-  // Filtrar las 10 comunidades con más likes
-  const topComunidades = comunidades.slice(0, 10);
-
-  // Función para cambiar el estado de mostrarTodo
+  useEffect(() => {
+    // Obtener las publicaciones populares del servidor
+    axios
+      .get("http://localhost:3307/populares")
+      .then((response) => {
+        setPublicacionesPopulares(response.data);
+      })
+      .catch((error) => {
+        console.error("Error al obtener publicaciones populares:", error);
+      });
+  }, []);
 
   return (
-    <div className="bg-gray-100 max-w-max p-4 rounded-lg shadow-md dark:border dark:border-gray-300 dark:bg-gray-900">
-      <h2 className="text-xl font-semibold mb-4">Comunidades Populares</h2>
-      <div>
-        <ul className="divide-y divide-gray-200">
-          {topComunidades.map((comunidad) => (
-            <li key={comunidad.id} className="py-2">
-              <a href="#" className="hover:underline">
-                {comunidad.nombre}
-              </a>
-            </li>
-          ))}
-        </ul>
+    <div className="text-gray-800 dark:text-gray-100 bg-gray-100 border dark:border-gray-100 border-gray-300 max-w-max epilogue p-4 rounded-lg shadow-md dark:bg-rincon">
+      <h2 className="text-lg font-semibold mb-4 uppercase">
+        Publicaciones Populares
+      </h2>
+      <div className="space-y-4">
+        {publicacionesPopulares.map((publicacion) => (
+          <a
+            key={`${publicacion.id}-${publicacion.usuario_id}`}
+            href={`/publicaciones/${publicacion.id}`} // Establece la URL de destino
+            className="block hover:no-underline"
+          >
+            <div className="flex items-center p-3 rounded-lg hover:bg-gray-200 dark:hover:bg-rinconHover">
+              <img
+                src={publicacion.imagen_perfil}
+                alt={publicacion.nombre_usuario}
+                className="w-12 h-12 mr-4 rounded-full"
+              />
+              <div>
+                <h3 className="text-base font-semibold">{publicacion.titulo}</h3>
+                <p className="text-sm text-gray-600 dark:text-gray-100">{publicacion.likes} Likes</p>
+              </div>
+            </div>
+          </a>
+        ))}
       </div>
     </div>
   );
+};
+
+MasPopular.propTypes = {
+  publicacionesPopulares: PropTypes.array,
 };
 
 export default MasPopular;

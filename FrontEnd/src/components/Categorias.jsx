@@ -26,7 +26,7 @@ const Categorias = () => {
             <li key={categoria.id}>
               <a
                 href={`/categoria/${categoria.id}`}
-                className="text-sm hover:bg-gray-200 text-gray-800 py-2 px-8 rounded-lg flex items-center dark:bg-gray-10 dark:text-gray-100 dark:hover:bg-gray-800"
+                className="text-sm hover:bg-gray-200 text-gray-800 py-2 px-8 rounded-lg flex items-center  dark:text-gray-100 dark:hover:bg-rinconHover"
               >
                 <div className="flex gap-1 items-center">
                   {categoria.icono}

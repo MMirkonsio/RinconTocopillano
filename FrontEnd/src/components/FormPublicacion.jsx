@@ -44,7 +44,7 @@ function FormPublicacion() {
   };
 
   return (
-    <div className="bg-gray-900 p-6 rounded-lg epilogue text-gray-100 lg:w-3/4 dark:bg-gray-100 dark:text-gray-800">
+    <div className="flex flex-col h-screen relative mt-8 bg-gray-100 lg:ml-auto lg:mr-20 w-3/4 p-6 rounded-lg epilogue text-gray-800  dark:bg-rincon dark:text-gray-100">
       <h2 className="text-2xl font-semibold mb-4">Crear Publicación</h2>
       <form>
         <div className="mb-4">
@@ -69,7 +69,7 @@ function FormPublicacion() {
         <div className="mb-4">
           <label
             htmlFor="price"
-            className="block text-sm font-medium leading-6 text-gray-300 dark:text-gray-800"
+            className="block text-sm font-medium leading-6"
           >
             Precio:
           </label>
@@ -96,12 +96,34 @@ function FormPublicacion() {
             id="condicion"
             className="w-full px-3 py-2 border border-gray-300 rounded-md text-gray-800"
           >
-            <option value="nuevo">Nuevo</option>
+            <option value="" disabled selected>
+              Selecciona la condición
+            </option>
             <option value="usado-como-nuevo">Usado - Como Nuevo</option>
             <option value="usado-buen-estado">Usado - Buen Estado</option>
             <option value="usado-aceptable">Usado - Aceptable</option>
           </select>
         </div>
+        <div className="mb-4">
+          <label htmlFor="condicion" className="block mb-1">
+            Categoría del producto:
+          </label>
+          <select
+            id="condicion"
+            className="w-full px-3 py-2 border border-gray-300 rounded-md text-gray-800"
+          >
+            <option value="" disabled selected>
+              Selecciona una categoría
+            </option>
+            <option value="comida">Comida</option>
+            <option value="ropa">Ropa</option>
+            <option value="electronico">Electrónicos</option>
+            <option value="juguetes">Juguetes y juegos</option>
+            <option value="mascotas">Productos para mascotas</option>
+            <option value="deportivos">Artículos deportivos</option>
+          </select>
+        </div>
+
         <div className="mb-4">
           <label htmlFor="imagen" className="block mb-1">
             Imagen ({imagePreview.length}/10):
@@ -147,7 +169,7 @@ function FormPublicacion() {
         )}
         <button
           type="submit"
-          className="bg-gray-100 text-gray-800 px-4 py-2 rounded-md hover:bg-gray-300 dark:bg-gray-800 dark:text-gray-100 dark:hover:bg-gray-700"
+          className="bg-gray-100 text-gray-800 px-4 py-2 rounded-md hover:bg-gray-300 dark:bg-gray-100 dark:text-gray-800 dark:hover:bg-gray-300"
         >
           Publicar
         </button>

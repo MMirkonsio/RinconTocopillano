@@ -1,52 +1,55 @@
-import { BrowserRouter as Router, Route, Routes } from 'react-router-dom';
-import Navbar from './components/Navbar';
-import HomeScreen from './screens/HomeScreen';
-import Publicaciones from './components/Publicaciones';
-import PublicacionScreen from './screens/PublicacionScreen';
+import { BrowserRouter as Router, Route, Routes } from "react-router-dom";
+import Navbar from "./components/Navbar";
+import HomeScreen from "./screens/HomeScreen";
+import Publicaciones from "./components/Publicaciones";
+import PublicacionScreen from "./screens/PublicacionScreen";
+import Editar from "./screens/EditPerfil";
+import PerfilUsuario from "./screens/PerfilUsuario";
+import BandejaDeEntrada from "./components/BandejaEntrada";
+import GuardadosP from "./components/Guardados";
+import AyudaUser from "./components/Ayuda";
+import Registro from "./screens/Registrarse";
+import InicioSesion from "./screens/InicioSesion";
 
 
 function App() {
   return (
     <Router>
-      <div className="bg-gray-100 overflow-hidden flex flex-col h-screen dark:bg-gray-900 dark:text-gray-100">
-        {/* Aca se mostrará cualquier componente en todas las rutas */}
-        <Navbar />
+      <Routes>
+        {/* Rutas con Navbar */}
+        <Route
+          path="*"  // Cambia la ruta principal a "*"
+          element={
+            <div className="bg-gray-100 overflow-hidden mx-auto flex flex-col dark:bg-rincon dark:text-gray-100">
+              <Navbar />
+              <Routes>
+                <Route path="/" element={<HomeScreen />} />
+                <Route path="/inicio" element={<HomeScreen />} />
+                <Route
+                  path="/publicaciones"
+                  element={
+                      <Publicaciones />
+                  }
+                />
+                <Route path="/publicar" element={<PublicacionScreen />} />
+                <Route
+                  path="/bandeja-de-entrada"
+                  element={<BandejaDeEntrada />}
+                />
+                <Route path="/guardados" element={<GuardadosP />} />
+                <Route path="/ayuda" element={<AyudaUser />} />
+                <Route path="/perfil" element={<PerfilUsuario />} />
+                <Route path="/api/guardar-perfil" element={<Editar />} />
+                
+              </Routes>
+            </div>
+          }
+        />
 
-        {/* Rutas */}
-        <Routes>
-          <Route
-            path="/"
-            element={
-                <HomeScreen />
-
-            }
-          />
-          <Route
-            path="/inicio"
-            element={
-              <div className="flex items-center justify-center lg:mt-10 lg:ml-auto mt-24 lg:w-5/6">
-                <HomeScreen />
-              </div>
-            }
-          />
-          <Route
-            path="/publicaciones"
-            element={
-              <div className="flex items-center relative lg:left-80 lg:top-10 m-3 top-24 w-fit">
-                <Publicaciones />
-              </div>
-            }
-          />
-          <Route
-            path="/publicar"
-            element={
-              <div className="flex items-center relative lg:left-80 lg:top-10 m-3 top-24 ">
-                <PublicacionScreen />
-              </div>
-            }
-          />
-        </Routes>
-      </div>
+        {/* Ruta sin Navbar */}
+        <Route path="/registro" element={<Registro />} />
+        <Route path="/login" element={<InicioSesion />} />
+      </Routes>
     </Router>
   );
 }

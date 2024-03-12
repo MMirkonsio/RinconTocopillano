@@ -20,12 +20,12 @@ function Darkmode() {
   };
 
   return (
-    <div className="flex justify-left items-center dark:bg-gray-900 relative -top-2">
+    <div className="flex justify-left items-center dark:bg-rincon relative">
       <button
-        className="px-4 py-2 rounded dark:bg-gray-900 dark:text-gray-100 dark:hover:bg-gray-800"
+        className="px-4 py-2 rounded dark:bg-rincon dark:text-gray-100 "
         onClick={handleChangeTheme}
       >
-        {theme === "dark" ? <Sun size={20} /> : <Moon size={20} />}
+        {theme === "dark" ? <Sun size={24} /> : <Moon size={24} />}
       </button>
     </div>
   );
