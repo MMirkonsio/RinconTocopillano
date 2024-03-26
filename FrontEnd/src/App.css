@@ -9,3 +9,6 @@
   top: 1rem;
   right: 1rem;
 }
+.image-container {
+  image-rendering: pixelated;
+}

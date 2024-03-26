@@ -1,50 +1,110 @@
-import { useState } from 'react';
-import { FiBell } from 'react-icons/fi'; // Importa el icono de la campana
+import { useState, useEffect } from "react";
+import { FiBell } from "react-icons/fi";
+import { Link } from "react-router-dom";
+import PropTypes from "prop-types";
+import axios from "axios";
+import { useAuth } from "../utils/auth";
 
-const BandejaDeEntrada = () => {
-  const [notificaciones, setNotificaciones] = useState([
-    { id: 1, titulo: 'Nueva notificación', descripcion: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.' },
-    { id: 2, titulo: 'Otra notificación', descripcion: 'Lorem ipsum dolor sit amet, consectetur adipiscing elit.' },
-    // Agrega más notificaciones según sea necesario
-  ]);
+const BASE_URL = "http://localhost:3307";
 
-  const marcarComoLeida = (id) => {
-    // Lógica para marcar la notificación como leída
-    // Puedes implementar esta función según tus requerimientos específicos
-    console.log(`Notificación marcada como leída: ${id}`);
-  };
+const BandejaEntrada = ({ usuario_id, actualizarNotificaciones }) => {
+  const [notificaciones, setNotificaciones] = useState([]);
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
+  const { user } = useAuth();
 
-  const eliminarNotificacion = (id) => {
-    // Lógica para eliminar la notificación
-    setNotificaciones(notificaciones.filter(notif => notif.id !== id));
-  };
+  useEffect(() => {
+    const obtenerNotificaciones = async () => {
+      try {
+        const response = await axios.get(
+          `${BASE_URL}/notificaciones/${usuario_id}`
+        );
+        setNotificaciones(response.data);
+        actualizarNotificaciones(response.data.length); // Actualizar el estado de las notificaciones en el Navbar
+        setLoading(false);
+      } catch (error) {
+        if (error.response && error.response.status === 401) {
+          console.error("Sesión expirada. Vuelve a iniciar sesión.");
+        } else {
+          setError(error.message || "Error al obtener las notificaciones");
+        }
+        setLoading(false);
+      }
+    };
+
+    obtenerNotificaciones();
+  }, [usuario_id, actualizarNotificaciones]);
+
+  useEffect(() => {
+    // Reiniciar notificacionesCount a cero al montar el componente
+    actualizarNotificaciones(0);
+
+    // Marcar todas las notificaciones como leídas en el backend
+    async function marcarNotificacionesLeidas() {
+      try {
+        await axios.put(`${BASE_URL}/notificaciones/${usuario_id}`);
+      } catch (error) {
+        console.error("Error al marcar notificaciones como leídas:", error);
+      }
+    }
+
+    marcarNotificacionesLeidas();
+  }, [usuario_id, actualizarNotificaciones]);
+
+  if (loading) {
+    return <p>Cargando notificaciones...</p>;
+  }
+
+  if (error) {
+    return <p>Error: {error}</p>;
+  }
+
+  if (notificaciones.length === 0) {
+    return <p>No se encontraron notificaciones.</p>;
+  }
 
   return (
-    <div className="flex flex-col h-screen items-center relative mt-8 bg-gray-100 lg:ml-auto lg:mr-20 w-full p-6 rounded-lg epilogue text-gray-800  dark:bg-rincon dark:text-gray-100">
-      <h2 className="text-xl font-semibold mb-4">Bandeja de entrada</h2>
-      {notificaciones.length === 0 ? (
-        <p className="text-gray-600">No tienes notificaciones.</p>
-      ) : (
-        notificaciones.map(notificacion => (
-          <div key={notificacion.id} className="bg-white rounded-lg shadow-md mb-4 p-4">
+    <div className="flex flex-col relative bg-gray-100 w-full rounded-lg epilogue text-gray-800 dark:bg-rincon dark:text-gray-100">
+      <h2 className="flex flex-row text-xl font-semibold mb-4 gap-2">
+        <FiBell className="w-6 h-6 " />
+        Notificaciones
+      </h2>
+
+      {notificaciones
+        .filter((notificacion) => notificacion.tipo === "upvote")
+        .map((notificacion, index) => (
+          <div key={index} className="rounded-lg shadow-md mb-4 p-4">
             <div className="flex items-center justify-between mb-2">
-              <h3 className="text-lg font-semibold">{notificacion.titulo}</h3>
-              <button onClick={() => eliminarNotificacion(notificacion.id)} className="text-gray-500 hover:text-gray-700 focus:outline-none">
-                Eliminar
-              </button>
+              {user && (
+                <div className="flex items-center space-x-3">
+                  <Link
+                    to={`/perfil/${notificacion.usuario_id}`}
+                    className="flex items-center"
+                  >
+                    <img
+                      className="w-10 h-10 rounded-full mr-2"
+                      src={`${BASE_URL}/uploads/${notificacion.foto_perfil}`}
+                      alt={`Foto de perfil de ${notificacion.nombre_usuario}`}
+                    />
+                    <span className="font-semibold">
+                      {notificacion.nombre_usuario}
+                    </span>
+                  </Link>
+                </div>
+              )}
             </div>
-            <p className="text-sm text-gray-600">{notificacion.descripcion}</p>
-            <button onClick={() => marcarComoLeida(notificacion.id)} className="text-gray-500 hover:text-gray-700 text-xs mt-2 focus:outline-none">
-              Marcar como leída
-            </button>
+            <span className="font-semibold">
+              Ha dado like a tu publicación: {notificacion.titulo}
+            </span>
           </div>
-        ))
-      )}
-      <div className="flex justify-center">
-        <FiBell className="text-gray-500 w-8 h-8" />
-      </div>
+        ))}
     </div>
   );
 };
 
-export default BandejaDeEntrada;
+BandejaEntrada.propTypes = {
+  usuario_id: PropTypes.number.isRequired,
+  actualizarNotificaciones: PropTypes.func.isRequired,
+};
+
+export default BandejaEntrada;

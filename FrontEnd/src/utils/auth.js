@@ -1,7 +1,5 @@
-// auth.js
 import { useState, useEffect } from 'react';
 
-// En la función login
 export const login = (user) => {
   if (user.id && user.nombre_usuario) {
     localStorage.setItem("user", JSON.stringify(user));
@@ -28,22 +26,13 @@ export const getUser = () => {
 export const useAuth = () => {
   const [user, setUser] = useState(getUser() || null);
 
-  const updateUser = () => {
-    const storedUser = getUser();
-
-    if (storedUser && storedUser.id && storedUser.nombre_usuario) {
-      setUser(storedUser);
-    }
-  };
-
   useEffect(() => {
-    const storedUser = getUser();
-    if (storedUser && storedUser.id && storedUser.nombre_usuario) {
-      setUser(storedUser);
-    }
+    setUser(getUser());
   }, []);
-  
-  
+
+  const updateUser = () => {
+    setUser(getUser());
+  };
 
   return { user, updateUser };
 };
