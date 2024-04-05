@@ -1,7 +1,7 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 import { useParams } from "react-router-dom"; // Importar el hook useParams
-import Fade from "react-reveal/Fade"; // Cambiar la importación
+import { Link } from "react-router-dom";
 
 const TodasPublicacionesUsu = () => {
   const { usuario_id } = useParams(); // Obtener el usuario_id de los parámetros de la URL
@@ -56,9 +56,14 @@ const TodasPublicacionesUsu = () => {
 
   return (
     <div className="flex flex-col items-center">
-      <div className="grid lg:grid-cols-3 gap-4 p-4">
+      <span className="mt-4">Publicaciones</span>
+      <div className="grid lg:grid-cols-3 gap-4 mt-4">
         {publicaciones.map((publicacion, index) => (
-          <Fade key={`${publicacion.id}_${index}`}>
+          <Link
+            key={`${publicacion.id}_${index}`}
+            to={`/publicacion/${publicacion.publicacion_id}/comments`}
+            className="cursor-pointer"
+          >
             <div
               className="relative overflow-hidden rounded-lg border transition duration-300"
               style={{ cursor: "pointer" }}
@@ -78,7 +83,7 @@ const TodasPublicacionesUsu = () => {
                 </div>
               </div>
             </div>
-          </Fade>
+          </Link>
         ))}
       </div>
     </div>

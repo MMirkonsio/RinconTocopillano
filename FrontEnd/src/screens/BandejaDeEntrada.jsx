@@ -14,7 +14,7 @@ const Bandeja = () => {
   };
 
   return (
-    <div className="flex min-h-[100dvh] justify-center lg:gap-16 mx-auto w-3/4">
+    <div className="container mx-auto max-w-[1200px] flex justify-center gap-4 font-semibold noto-sans">
       <Navbar notificacionesCount={notificacionesCount} />
       <div className="flex-1 lg:mt-10 mt-28">
         <BandejaEntrada

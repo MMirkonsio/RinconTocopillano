@@ -2,7 +2,6 @@ import { useState, useEffect } from "react";
 import axios from "axios";
 import { useParams } from "react-router-dom";
 import { MdOutlineSearchOff } from "react-icons/md";
-import Fade from "react-reveal/Fade"; // Importar el componente Fade
 
 const PublicacionesXCategoria = () => {
   const { categoria_id } = useParams();
@@ -28,14 +27,14 @@ const PublicacionesXCategoria = () => {
   }, [categoria_id]);
 
   return (
-    <div className="epilogue">
+    <div className="p-4 rounded-md lg:border border-gray-300 dark:border-gray-700 border-opacity-75 bg-gray-100  text-gray-800 dark:text-gray-100 dark:bg-rincon ">
       {nombreCategoria && ( // Verificar si nombreCategoria está presente
-        <h2 className="mb-4 font-bold text-2xl">
+        <h2 className="mb-4 p-4 font-bold text-2xl">
           Publicaciones de {nombreCategoria}
         </h2>
       )}
       {publicaciones.length === 0 && (
-        <div className="flex flex-row  mb-4 epilogue relative gap-2 items-center">
+        <div className="flex flex-row  mb-4 relative gap-2 items-center">
           <MdOutlineSearchOff className="h-12 w-12 " />
           <p className="font-semibold text-red-500">
             No hay publicaciones disponibles en esta categoría
@@ -44,23 +43,23 @@ const PublicacionesXCategoria = () => {
       )}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         {publicaciones.map((publicacion, index) => (
-          <Fade key={`${publicacion.id}_${index}`}>
-            {/* Agregar el componente Fade */}
-            <div className="dark:hover:bg-rinconHover hover:bg-gray-200 p-4 shadow-md rounded-lg cursor-pointer">
-              <img
-                src={`${BASE_URL}/uploads/${publicacion.imagen_contenido}`}
-                alt="Imagen de la publicación"
-                className="w-full h-auto object-cover rounded-lg mb-2"
-                style={{ width: "600px", height: "300px" }}
-              />
-              <p className="dark:text-gray-100 text-gray-800 font-semibold text-xl">
-                {publicacion.titulo}
-              </p>
-              <p className="dark:text-gray-300 text-gray-600">
-                Precio: ${publicacion.precio}
-              </p>
-            </div>
-          </Fade>
+          <div
+            key={`${publicacion.id}_${index}`}
+            className="dark:hover:bg-rinconHover hover:bg-gray-200 p-4 rounded-lg cursor-pointer"
+          >
+            <img
+              src={`${BASE_URL}/uploads/${publicacion.imagen_contenido}`}
+              alt="Imagen de la publicación"
+              className="w-full h-auto object-cover rounded-lg mb-2"
+              style={{ width: "600px", height: "300px" }}
+            />
+            <p className="dark:text-gray-100 text-gray-800 font-semibold text-xl">
+              {publicacion.titulo}
+            </p>
+            <p className="dark:text-gray-300 text-gray-600">
+              Precio: ${publicacion.precio}
+            </p>
+          </div>
         ))}
       </div>
     </div>

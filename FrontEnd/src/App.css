@@ -1,5 +1,5 @@
-.epilogue {
-  font-family: "Epilogue", sans-serif;
+.noto-sans {
+  font-family: "Noto Sans", sans-serif;
   font-optical-sizing: auto;
   font-weight: weight;
   font-style: normal;
@@ -12,3 +12,4 @@
 .image-container {
   image-rendering: pixelated;
 }
+

@@ -1,7 +1,12 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 import PropTypes from "prop-types";
-import { FaArrowUp, FaArrowDown } from "react-icons/fa";
+import {
+  ArrowDownInline,
+  ArrowDownSolid,
+  ArrowUpSolid,
+  ArrowUpInline,
+} from "../IconsSVG/Icons";
 import { useAuth } from "../utils/auth";
 import Swal from "sweetalert2/dist/sweetalert2.js";
 import "sweetalert2/dist/sweetalert2.css";
@@ -115,25 +120,38 @@ function Post(props) {
   };
 
   return (
-    <div className="flex flex-row items-center bg-gray-300 dark:bg-rincon2 rounded-full">
+    <div className={`flex flex-row items-center rounded-full 
+      ${voteState === "upvote" ? "bg-green-500 " : ""}
+      ${voteState === "downvote" ? "bg-purple-500 " : ""}
+      ${!voteState ? "bg-gray-200" : ""}
+      ${!voteState ? "dark:bg-rincon2" : ""}
+    `}>
       <button
         onClick={() => handleVote(voteState === "upvote" ? "unvote" : "upvote")}
-        className={`button flex items-center gap-1 bg-gray-300 dark:bg-rincon2 dark:hover:bg-rincon hover:bg-gray-400 p-2 rounded-full ${
-          voteState === "upvote" && "text-green-500"
-        }`}
+        className={`button flex items-center p-2 rounded-full 
+          ${voteState === "upvote" && "text-gray-100"} 
+          ${voteState === "upvote" || voteState === "unvote" ? "hover:bg-green-700 dark:hover:bg-green-700" : "hover:bg-green-500 "}
+          ${voteState === "downvote" || voteState === "unvote" ? "hover:bg-purple-700 text-gray-100 dark:hover:bg-purple-700 " : " dark:hover:bg-green-700 "}
+        `}
       >
-        <FaArrowUp />
+        {voteState === "upvote" || voteState === "unvote" ? <ArrowUpSolid className="h-4 w-4" /> : <ArrowUpInline className="h-4 w-4" />}
       </button>
-      <span className="votes">{totalVotes}</span>
-      <button
-        onClick={() =>
-          handleVote(voteState === "downvote" ? "unvote" : "downvote")
-        }
-        className={`button flex items-center gap-1 bg-gray-300 dark:bg-rincon2 dark:hover:bg-rincon hover:bg-gray-400 p-2 rounded-full ${
-          voteState === "downvote" && "text-purple-500"
+      <span
+        className={`votes font-semibold ${
+          (voteState === "upvote" || voteState === "downvote" || voteState === "unvote") && "text-gray-100"
         }`}
       >
-        <FaArrowDown />
+        {totalVotes}
+      </span>
+      <button
+        onClick={() => handleVote(voteState === "downvote" ? "unvote" : "downvote")}
+        className={`button flex items-center p-2 rounded-full 
+          ${voteState === "downvote" && "text-gray-100"} 
+          ${voteState === "downvote" || voteState === "unvote" ? "hover:bg-purple-700 dark:hover:bg-purple-700" : "hover:bg-purple-500 "}
+          ${voteState === "upvote" || voteState === "unvote" ? "hover:bg-green-700 text-gray-100 dark:hover:bg-green-700" : "dark:hover:bg-purple-700 "}
+        `}
+      >
+        {voteState === "downvote" || voteState === "unvote" ? <ArrowDownSolid className="h-4 w-4" /> : <ArrowDownInline className="h-4 w-4" />}
       </button>
     </div>
   );

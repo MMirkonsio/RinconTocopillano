@@ -24,7 +24,7 @@ const PreguntasFrecuentes = () => {
   ];
 
   return (
-    <div className="flex flex-col relative bg-gray-100 w-full rounded-lg epilogue text-gray-800 dark:bg-rincon dark:text-gray-100">
+    <div className="flex flex-col relative bg-gray-100 w-auto rounded-lg m-4 text-gray-800 dark:bg-rincon dark:text-gray-100">
       <h2 className="text-xl font-bold mb-4">Preguntas Frecuentes</h2>
       <div className="space-y-4">
         {faqs.map((faq) => (

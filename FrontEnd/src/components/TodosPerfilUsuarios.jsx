@@ -37,51 +37,53 @@ const TodosUsuarios = () => {
   }
 
   return (
-    <div className="mt-8">
-      <div className="flex flex-col mb-6 items-center gap-2 text-center">
-        <div className="w-64 h-64 rounded-full overflow-hidden mb-3">
+    <div className="flex flex-col items-left gap-2 text-center p-4 border-b dark:border-gray-700 border-gray-300">
+      <div className="flex flex-row items-center gap-4">
+        {/* Contenedor de la foto de perfil */}
+        <div className="flex-shrink-0 w-32 h-32 rounded-full overflow-hidden mb-4">
           {usuario && usuario.foto_perfil && (
             <img
-              className="w-full h-full object-cover rounded-full ring ring-gray-300 dark:ring-gray-300"
+              className="w-full h-full object-cover"
               src={`${BASE_URL}${usuario.foto_perfil}`}
               alt={`Foto de perfil de ${usuario.nombre_usuario}`}
             />
           )}
         </div>
 
-        <div className="grid gap-0.5">
-          <h2 className="text-2xl font-bold">
-            {usuario && usuario.nombre_usuario}
-          </h2>
-          <div className="grid grid-cols-1 text-sm mt-2 mb-5 text-gray-500 dark:text-gray-400">
-            <span className="font-semibold">
-              Teléfono: {usuario && usuario.telefono}
+        {/* Contenedor del nombre y botones */}
+        <div className="flex flex-col items-start text-left">
+          <div className="flex items-center gap-2">
+            <h2 className="text-xl font-bold">
+              {usuario && usuario.nombre_usuario}
+            </h2>
+            {/* Botón de editar (si el usuario es el propietario del perfil) */}
+            {user && user.id === usuario.id && (
+              <button className="flex items-center gap-1 px-3 py-1.5 text-xs font-bold bg-gray-200 hover:bg-gray-300 dark:text-gray-800 dark:bg-gray-100 rounded-md dark:hover:bg-gray-300 focus:outline-none">
+                <PencilEdit01Icon className="h-4 w-4" />
+                Editar
+              </button>
+            )}
+            {/* Botón de seguir (si el usuario no es el propietario del perfil) */}
+            {!user ||
+              (user.id !== usuario.id && (
+                <button className="flex items-center gap-1 px-3 py-1.5 text-xs font-bold bg-gray-200 hover:bg-gray-300 dark:text-gray-800 dark:bg-gray-100 rounded-md dark:hover:bg-gray-300 focus:outline-none">
+                  <PlusSignSquareIcon className="h-4 w-4" />
+                  Seguir
+                </button>
+              ))}
+          </div>
+          <div className="flex flex-col gap-1 text-sm text-gray-500 dark:text-gray-400 mt-3">
+            <span>
+              <strong>Teléfono:</strong> {usuario && usuario.telefono}
             </span>
-            <span className="font-semibold">
-              Dirección: {usuario && usuario.direccion}
+            <span>
+              <strong>Dirección:</strong> {usuario && usuario.direccion}
             </span>
-            <span className="font-semibold">
-              Horario: {usuario && usuario.horario}
+            <span>
+              <strong>Horario:</strong> {usuario && usuario.horario}
             </span>
           </div>
         </div>
-        {user && user.id === usuario.id && (
-          <div className="flex justify-center col-span-2">
-            <button className="flex flex-row gap-1 px-4 py-2 text-sm font-bold bg-gray-200 hover:bg-gray-300 dark:text-gray-800 dark:bg-gray-100 rounded-md dark:hover:bg-gray-300 focus:outline-none">
-              <PencilEdit01Icon />
-              Editar
-            </button>
-          </div>
-        )}
-        {!user ||
-          (user.id !== usuario.id && (
-            <div className="flex justify-center col-span-2">
-              <button className="flex flex-row gap-1 px-4 py-2 text-sm font-bold bg-gray-200 hover:bg-gray-300 dark:text-gray-800 dark:bg-gray-100 rounded-md dark:hover:bg-gray-300 focus:outline-none">
-                <PlusSignSquareIcon />
-                Seguir
-              </button>
-            </div>
-          ))}
       </div>
     </div>
   );

@@ -6,7 +6,7 @@ const CategoriasScreen = () => {
   const { categoria_id } = useParams();
 
   return (
-    <div className="flex min-h-[100dvh] justify-center lg:gap-16 mx-auto w-3/4">
+    <div className="container mx-auto max-w-[1200px] flex justify-center gap-4  noto-sans">
       <Navbar />
       <div className="flex-1 lg:mt-10 mt-28">
         <PublicacionesXCategoria categoria_id={categoria_id} />

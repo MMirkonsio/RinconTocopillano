@@ -35,21 +35,8 @@ const BandejaEntrada = ({ usuario_id, actualizarNotificaciones }) => {
     obtenerNotificaciones();
   }, [usuario_id, actualizarNotificaciones]);
 
-  useEffect(() => {
-    // Reiniciar notificacionesCount a cero al montar el componente
-    actualizarNotificaciones(0);
 
-    // Marcar todas las notificaciones como leídas en el backend
-    async function marcarNotificacionesLeidas() {
-      try {
-        await axios.put(`${BASE_URL}/notificaciones/${usuario_id}`);
-      } catch (error) {
-        console.error("Error al marcar notificaciones como leídas:", error);
-      }
-    }
 
-    marcarNotificacionesLeidas();
-  }, [usuario_id, actualizarNotificaciones]);
 
   if (loading) {
     return <p>Cargando notificaciones...</p>;
@@ -64,7 +51,7 @@ const BandejaEntrada = ({ usuario_id, actualizarNotificaciones }) => {
   }
 
   return (
-    <div className="flex flex-col relative bg-gray-100 w-full rounded-lg epilogue text-gray-800 dark:bg-rincon dark:text-gray-100">
+    <div className="flex flex-col relative bg-gray-100 w-full rounded-lg noto-sans text-gray-800 dark:bg-rincon dark:text-gray-100">
       <h2 className="flex flex-row text-xl font-semibold mb-4 gap-2">
         <FiBell className="w-6 h-6 " />
         Notificaciones

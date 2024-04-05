@@ -139,7 +139,7 @@ function FormPublicacion() {
         <div role="alert" className="mr-2">
           <InformationCircleIcon />
         </div>
-        <span className="text-2xl font-bold epilogue">
+        <span className="text-2xl font-bold ">
           Inicia sesión para poder publicar.
         </span>
       </div>
@@ -147,7 +147,7 @@ function FormPublicacion() {
   }
 
   return (
-    <div className="flex flex-col relative bg-gray-100 w-full rounded-lg epilogue text-gray-800 dark:bg-rincon dark:text-gray-100">
+    <div className="flex flex-col p-4 relative bg-gray-100 w-full rounded-lg text-gray-800 dark:bg-rincon dark:text-gray-100">
       <h2 className="text-2xl font-bold">Crea tu publicación!</h2>
       <div className="flex flex-col lg:flex-row mt-6">
         <form
@@ -205,7 +205,7 @@ function FormPublicacion() {
                 id="precio"
                 value={formData.precio}
                 onChange={handlePrecioChange}
-                className="block w-full rounded-md border-0 py-2 pl-7 pr-20 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6"
+                className="block w-full rounded-md border-0 py-2 pl-7 pr-20 text-gray-900 ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset sm:leading-6"
                 placeholder="0.00"
               />
             </div>
@@ -234,7 +234,10 @@ function FormPublicacion() {
             </select>
           </div>
           <div className="mb-4">
-            <label htmlFor="imagen_contenido" className="block mb-1 font-bold">
+            <label
+              htmlFor="imagen_contenido"
+              className="block mb-2 text-sm font-medium text-rincon dark:text-white"
+            >
               Imagen de la publicación (Máximo: 1):
             </label>
             <input
@@ -243,7 +246,7 @@ function FormPublicacion() {
               name="imagen_contenido"
               accept="image/*"
               onChange={handleChange}
-              className="w-full py-2  dark:text-gray-400 rounded-xl"
+              className="block w-full text-sm text-rincon border border-gray-300  rounded-md cursor-pointer bg-gray-100 dark:text-rincon focus:outline-none dark:placeholder-gray-400"
             />
           </div>
           {formData.errorMessage && (

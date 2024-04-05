@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react";
 import axios from "axios";
 import PropTypes from "prop-types";
+import { Link } from "react-router-dom";
 
 const MasPopular = () => {
   const [publicacionesPopulares, setPublicacionesPopulares] = useState([]);
@@ -19,27 +20,25 @@ const MasPopular = () => {
   }, []);
 
   return (
-    <div className="text-gray-800 dark:text-gray-100 block epilogue p-4 rounded-lg  dark:bg-rincon border border-gray-300 dark:border-gray-700 border-opacity-75">
+    <div className="text-gray-800 dark:text-gray-100 block p-4 rounded-lg  dark:bg-rincon lg:border-2 border-slate-400/10">
       <h2 className="text-lg font-bold mb-4 uppercase">
         Publicaciones Populares
       </h2>
-      <div className="space-y-4">
+      <div className="space-y-1.5 max-w-64">
         {publicacionesPopulares.map((publicacion) => (
-          <a
+          <Link
             key={publicacion.id ? publicacion.id : publicacion.publicacion_id} // Usar publicacion.id si está definido, de lo contrario, usar publicacion.publicacion_id
-            href={`/publicaciones/${
-              publicacion.id ? publicacion.id : publicacion.publicacion_id
-            }`} // Establece la URL de destino
+            to={`/publicacion/${publicacion.publicacion_id}/comments`} // Establece la URL de destino
             className="block hover:no-underline"
           >
             <div className="flex items-center p-3 rounded-lg hover:bg-gray-200 dark:hover:bg-rinconHover w-full">
               <img
                 src={`${BASE_URL}/uploads/${publicacion.imagen_contenido}`}
                 alt={publicacion.nombre_usuario}
-                className="w-12 h-12 mr-4 rounded-full"
+                className="w-12 h-12 mr-4 rounded-full object-cover"
               />
               <div className="flex flex-col overflow-hidden">
-                <h3 className="text-base font-semibold truncate">
+                <h3 className="text-base font-semibold truncate break-words">
                   {publicacion.titulo}
                 </h3>
                 <p className="text-sm text-green-500 font-semibold">
@@ -47,7 +46,7 @@ const MasPopular = () => {
                 </p>
               </div>
             </div>
-          </a>
+          </Link>
         ))}
       </div>
     </div>

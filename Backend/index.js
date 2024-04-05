@@ -1,3 +1,4 @@
+
 const express = require("express");
 const mysql = require("mysql2");
 const cors = require("cors");
@@ -5,15 +6,13 @@ const path = require("path");
 const bcrypt = require("bcryptjs");
 const multer = require("multer");
 const session = require("express-session");
-const http = require("http");
-const socketIo = require("socket.io");
+
+
 
 // Crear instancia de Express y del servidor HTTP
 const app = express();
-const port = 3307;
+const port = process.env.PORT || 3307
 
-const server = http.createServer(app); // Crea el servidor HTTP utilizando Express
-const io = socketIo(server); 
 // Configura el middleware de sesión
 app.use(
   session({
@@ -26,9 +25,6 @@ app.use(
     },
   })
 );
-
-
-
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
@@ -49,6 +45,7 @@ const connection = mysql.createConnection({
   host: "localhost",
   user: "Rincon2",
   password: "rincon2",
+  //Password SupaBase: ComercioTocopillano
   database: "rinconbd2",
   multipleStatements: true,
 });
@@ -117,8 +114,6 @@ const getUserByEmail = (correo) => {
 };
 
 
-
-
 app.get("/perfil/:usuario_id", (req, res) => {
   const usuario_id = req.params.usuario_id;
 
@@ -145,9 +140,6 @@ app.get("/perfil/:usuario_id", (req, res) => {
     }
   );
 });
-
-
-
 
 app.post("/registro", upload.single("foto_perfil"), async (req, res) => {
   try {
@@ -311,6 +303,116 @@ app.get("/publicaciones", (req, res) => {
     res.json(results);
   });
 });
+app.get("/publicacion/:publicacion_id/comments", (req, res) => {
+  let publicacionId = req.params.publicacion_id;
+
+  const sqlQuery = `
+    SELECT p.*, u.* 
+    FROM publicaciones p 
+    JOIN usuarios u ON p.usuario_id = u.id 
+    WHERE p.publicacion_id = ?
+  `;
+
+  connection.query(sqlQuery, [publicacionId], (error, results) => {
+    if (error) {
+      console.error("Error en la consulta:", error);
+      res.status(500).json({ error: error.message });
+      return;
+    }
+    if (results.length === 0) {
+      // Si no se encuentra ninguna publicación con el publicacion_id especificado
+      res.status(404).json({ error: "Publicación no encontrada" });
+      return;
+    }
+    res.json(results[0]);
+  });
+});
+app.post("/insertar-comentarios", async (req, res) => {
+  try {
+    const { publicacion_id, usuario_id, contenido } = req.body;
+
+    if (!contenido) {
+      return res.status(400).json({ error: "El contenido del comentario es requerido" });
+    }
+
+    // Suponiendo que tienes los valores de publicacion_id, usuario_id y tiempo_comentario disponibles en req.body
+    // Si no están disponibles, deberás proporcionar valores por defecto o manejar estos casos según sea necesario
+
+    const sqlQuery = "INSERT INTO comentarios (publicacion_id, usuario_id, contenido, tiempo_comentario) VALUES (?, ?, ?, NOW())";
+
+    connection.query(sqlQuery, [publicacion_id, usuario_id, contenido], (error, results) => {
+      if (error) {
+        console.error("Error al insertar el comentario:", error);
+        return res.status(500).json({ error: "Error interno del servidor al insertar el comentario" });
+      }
+      console.log("Comentario insertado correctamente");
+      res.status(200).json({ message: "Comentario insertado correctamente", comentario_id: results.insertId });
+    });
+  } catch (error) {
+    console.error("Error al procesar la solicitud:", error);
+    res.status(500).json({ error: "Error interno del servidor al procesar la solicitud" });
+  }
+});
+
+
+app.get("/comentarios/:publicacion_id", async (req, res) => {
+  try {
+    const { publicacion_id } = req.params;
+
+    // Consulta para obtener los comentarios
+    const sqlQuery = `
+      SELECT comentarios.*, usuarios.nombre_usuario, usuarios.foto_perfil
+      FROM comentarios
+      INNER JOIN usuarios ON comentarios.usuario_id = usuarios.id
+      WHERE comentarios.publicacion_id = ?
+      ORDER BY comentarios.tiempo_comentario DESC
+    `;
+
+    // Consulta para contar los comentarios
+    const countQuery = `
+      SELECT COUNT(*) AS totalComentarios
+      FROM comentarios
+      WHERE publicacion_id = ?
+    `;
+    
+    // Realizar ambas consultas en paralelo
+    const [commentsResult, countResult] = await Promise.all([
+      new Promise((resolve, reject) => {
+        connection.query(sqlQuery, [publicacion_id], (error, results) => {
+          if (error) {
+            reject(error);
+          } else {
+            resolve(results);
+          }
+        });
+      }),
+      new Promise((resolve, reject) => {
+        connection.query(countQuery, [publicacion_id], (error, results) => {
+          if (error) {
+            reject(error);
+          } else {
+            resolve(results);
+          }
+        });
+      })
+    ]);
+
+    // Extraer el conteo de comentarios
+    const totalComentarios = countResult[0].totalComentarios;
+
+    console.log("Comentarios obtenidos correctamente");
+    res.status(200).json({ comentarios: commentsResult, totalComentarios });
+  } catch (error) {
+    console.error("Error al procesar la solicitud:", error);
+    res.status(500).json({ error: "Error interno del servidor al procesar la solicitud" });
+  }
+});
+
+
+
+
+
+
 
 
 app.get("/buscar-publicaciones", (req, res) => {
@@ -550,9 +652,6 @@ app.post("/votos/:publicacion_id/:usuario_id/:tipo", async (req, res) => {
         totalVotes = result[0].total_votos; // Obtener el total de votos
       }
 
-      // Emitir el evento con el total de votos
-      io.emit("voteUpdate", { publicacion_id, totalVotes });
-
       // Commit si todo ha sido exitoso
       connection.commit((err) => {
         if (err) {
@@ -571,6 +670,7 @@ app.post("/votos/:publicacion_id/:usuario_id/:tipo", async (req, res) => {
     }
   });
 });
+
 
 
 
@@ -627,11 +727,56 @@ app.get("/categorias/:categoria_id", (req, res) => {
   });
 });
 
-// Ruta para obtener los guardados
-app.get('/guardados', (req, res) => {
-  const usuario_id = req.params.usuario_id; // Obtener el ID del usuario de la solicitud
+app.post('/guardados', (req, res) => {
+  const { usuario_id, publicacion_id, tipo } = req.body;
+
+  // Verificar si ya existe un registro de guardado para esta publicación y usuario
+  const checkQuery = 'SELECT * FROM guardados WHERE usuario_id = ? AND publicacion_id = ?';
+  connection.query(checkQuery, [usuario_id, publicacion_id], (error, results) => {
+    if (error) {
+      console.error('Error al verificar el guardado:', error);
+      res.status(500).json({ error: error.message });
+      return;
+    }
+
+    // Si ya existe un registro, eliminarlo (quitar el guardado)
+    if (results.length > 0) {
+      const deleteQuery = 'DELETE FROM guardados WHERE usuario_id = ? AND publicacion_id = ?';
+      connection.query(deleteQuery, [usuario_id, publicacion_id], (deleteError, deleteResults) => {
+        if (deleteError) {
+          console.error('Error al eliminar el guardado:', deleteError);
+          res.status(500).json({ error: deleteError.message });
+          return;
+        }
+        res.json({ message: 'Publicación eliminada de guardados' });
+      });
+    } else {
+      // Si no existe un registro, insertarlo (agregar el guardado)
+      const insertQuery = 'INSERT INTO guardados (usuario_id, publicacion_id, tipo) VALUES (?, ?, ?)';
+      connection.query(insertQuery, [usuario_id, publicacion_id, tipo], (insertError, insertResults) => {
+        if (insertError) {
+          console.error('Error al guardar la publicación:', insertError);
+          res.status(500).json({ error: insertError.message });
+          return;
+        }
+        res.json({ message: 'Publicación guardada exitosamente' });
+      });
+    }
+  });
+});
+
+
+
+
+app.get('/obtener-guardados/:usuario_id', (req, res) => {
+  const usuario_id = req.params.usuario_id;
   
-  const sqlQuery = 'SELECT * FROM guardados WHERE usuario_id = ?';
+  const sqlQuery = `
+    SELECT guardados.*, publicaciones.*
+    FROM guardados
+    INNER JOIN publicaciones ON guardados.publicacion_id = publicaciones.publicacion_id
+    WHERE guardados.usuario_id = ?
+  `;
   
   connection.query(sqlQuery, [usuario_id], (error, results) => {
     if (error) {
@@ -644,6 +789,32 @@ app.get('/guardados', (req, res) => {
 });
 
 
+app.delete('/eliminar-publicacion/:publicacion_id', async (req, res) => {
+  const { publicacion_id } = req.params;
+  const { usuario_id } = req.body; // Agregar esta línea para obtener usuario_id del cuerpo de la solicitud
+
+  try {
+    const deleteQuery = 'DELETE FROM guardados WHERE usuario_id = ? AND publicacion_id = ?';
+    connection.query(deleteQuery, [usuario_id, publicacion_id], (deleteError, deleteResults) => {
+      if (deleteError) {
+        console.error('Error al eliminar el guardado:', deleteError);
+        res.status(500).json({ error: deleteError.message });
+        return;
+      }
+      res.json({ message: 'Publicación eliminada de guardados' });
+    });
+  } catch (error) {
+    console.error('Error al eliminar la publicación:', error);
+    res.status(500).json({ error: error.message });
+  }
+});
+
+
+
+
+
+
+{/*
 // Ruta para obtener los votos por publicación ID y usuario ID
 app.get("/notificaciones/:usuario_id", async (req, res) => {
   const usuario_id = req.params.usuario_id;
@@ -671,7 +842,10 @@ app.get("/notificaciones/:usuario_id", async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 });
+*/}
 
+
+{/*
 app.get("/notificaciones/count/:usuario_id", async (req, res) => {
   const usuario_id = req.params.usuario_id;
   try {
@@ -696,6 +870,8 @@ app.get("/notificaciones/count/:usuario_id", async (req, res) => {
     res.status(500).json({ error: error.message });
   }
 });
+*/}
+
 
 
 

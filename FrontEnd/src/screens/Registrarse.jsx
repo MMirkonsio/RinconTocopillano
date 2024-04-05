@@ -102,16 +102,15 @@ const Registro = () => {
   };
 
   return (
-    <div className="flex flex-col items-center justify-center h-screen bg-gray-100 dark:bg-rincon dark:text-gray-100 epilogue">
-      <div className="absolute w-full top-0">
-        <Navbar2 />
-      </div>
-      <div className="p-8 text-left">
-        <h2 className="text-4xl font-bold mb-6 ">Registro</h2>
-
+    <div className="flex flex-col items-center justify-center h-screen bg-gray-100 dark:bg-rincon dark:text-gray-100 noto-sans">
+      <Navbar2 />
+      <div className="w-full max-w-[500px] p-4 bg-gray-100 lg:border lg:border-gray-300 rounded-lg  sm:p-6 md:p-8 dark:bg-rincon dark:border-gray-700 ">
+        <div className="text-center mb-6">
+          <h1 className="text-4xl font-bold ">Registrate!</h1>
+        </div>
         <form
           onSubmit={handleSubmit}
-          className="sm:grid sm:grid-cols-3 sm:gap-4   sm:max-w-[500px]"
+          className="mt-8 dark:text-gray-100 text-rincon"
           acceptCharset="UTF-8"
         >
           {/* Fila 1 */}
@@ -128,7 +127,7 @@ const Registro = () => {
               name="nombre_usuario"
               value={formData.nombre_usuario}
               onChange={handleChange}
-              className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+              className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline  focus:ring-rincon focus:border-rincon dark:focus:ring-gray-100"
               required
             />
           </div>
@@ -144,28 +143,12 @@ const Registro = () => {
               name="correo"
               value={formData.correo}
               onChange={handleChange}
-              className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+              className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline  focus:ring-rincon focus:border-rincon dark:focus:ring-gray-100"
               required
             />
           </div>
 
           {/* Fila 3 */}
-          <div className="mb-4">
-            <label className="block text-sm font-bold mb-2" htmlFor="telefono">
-              Teléfono
-            </label>
-            <input
-              type="tel"
-              id="telefono"
-              name="telefono"
-              value={formData.telefono}
-              onChange={handleChange}
-              className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-              required
-            />
-          </div>
-
-          {/* Fila 4 */}
           <div className="mb-4">
             <label className="block text-sm font-bold mb-2" htmlFor="password">
               Contraseña
@@ -176,10 +159,27 @@ const Registro = () => {
               name="password"
               value={formData.password}
               onChange={handleChange}
-              className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+              className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline  focus:ring-rincon focus:border-rincon dark:focus:ring-gray-100"
               required
             />
           </div>
+
+          {/* Fila 4 */}
+          <div className="mb-4">
+            <label className="block text-sm font-bold mb-2" htmlFor="telefono">
+              Teléfono
+            </label>
+            <input
+              type="tel"
+              id="telefono"
+              name="telefono"
+              value={formData.telefono}
+              onChange={handleChange}
+              className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline  focus:ring-rincon focus:border-rincon dark:focus:ring-gray-100"
+              required
+            />
+          </div>
+
           {/* Mensaje de error */}
           {error && (
             <div className="col-span-3 text-red-500 text-sm mb-4">{error}</div>
@@ -196,27 +196,25 @@ const Registro = () => {
               type="file"
               name="foto_perfil"
               onChange={handleChange}
-              className="shadow appearance-none  rounded w-[330px] py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+              className="block w-full text-sm text-rincon border border-gray-300  rounded-md cursor-pointer bg-gray-100 dark:text-rincon focus:outline-none dark:placeholder-gray-400"
             />
           </div>
-          <div className="col-span-3 flex items-center justify-between mt-6">
-            <button
-              type="submit"
-              className="bg-rinconClaro hover:bg-rinconHover text-white py-2 px-4 rounded-md focus:outline-none focus:shadow-outline font-bold"
-            >
-              Registrarse
-            </button>
-            <div className="grid max-w-[400px]">
-              <p className="flex flex-col gap-1 text-right text-sm text-gray-500 dark:text-gray-300">
-                Ya tienes una cuenta?
-                <Link
-                  to="/login"
-                  className="underline text-rincon dark:text-gray-100"
-                >
-                  Inicia Sesión!
-                </Link>
-              </p>
-            </div>
+          <button
+            type="submit"
+            className="w-full mb-4 text-white bg-rincon hover:bg-rinconHover  font-semibold rounded-lg text-sm px-5 py-2.5 text-center"
+          >
+            Registrarse
+          </button>
+          <div className="max-w-[400px]">
+            <p className="flex flex-row gap-1 text-right text-sm text-gray-500 dark:text-gray-300">
+              Ya tienes una cuenta?
+              <Link
+                to="/login"
+                className="hover:underline text-rincon dark:text-gray-100 font-semibold"
+              >
+                Inicia Sesión!
+              </Link>
+            </p>
           </div>
         </form>
       </div>
