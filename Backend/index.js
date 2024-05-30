@@ -1,30 +1,19 @@
-
 const express = require("express");
-const mysql = require("mysql2");
 const cors = require("cors");
 const path = require("path");
-const bcrypt = require("bcryptjs");
 const multer = require("multer");
-const session = require("express-session");
+const { createClient } = require("@supabase/supabase-js");
 
-
-
-// Crear instancia de Express y del servidor HTTP
-const app = express();
-const port = process.env.PORT || 3307
-
-// Configura el middleware de sesión
-app.use(
-  session({
-    secret: "rinconTocopillanocomercio2024",
-    resave: false,
-    saveUninitialized: true,
-    cookie: {
-      secure: false, // Cambiar a true si estás utilizando HTTPS
-      maxAge: 60 * 60 * 1000, // Tiempo de expiración de la sesión en milisegundos (en este caso, 30 minutos)
-    },
-  })
+const supabase = createClient(
+  "https://nnbbsaidwgehcewuocrb.supabase.co",
+  "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Im5uYmJzYWlkd2dlaGNld3VvY3JiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3MTE2MzY1MjgsImV4cCI6MjAyNzIxMjUyOH0.C6No6vqndRHL5MJu9bVILYQrUqqwhHAFnPUc3bjCvrc",
 );
+
+const app = express();
+const port = process.env.PORT || 3000;
+
+
+
 
 const storage = multer.diskStorage({
   destination: function (req, file, cb) {
@@ -40,27 +29,73 @@ const upload = multer({ storage: storage });
 // Configuración de Express para servir archivos estáticos
 app.use("/uploads", express.static(path.join(__dirname, "uploads")));
 
-// Configuración de la conexión a la base de datos
-const connection = mysql.createConnection({
-  host: "localhost",
-  user: "Rincon2",
-  password: "rincon2",
-  //Password SupaBase: ComercioTocopillano
-  database: "rinconbd2",
-  multipleStatements: true,
-});
-
 // Configuración de CORS
 const corsOptions = {
   origin: "http://localhost:5173", // Este debe ser el origen de tu aplicación React
   credentials: true, // Permite el envío de cookies
-  optionsSuccessStatus: 200,
 };
 app.use(cors(corsOptions));
 
-// Configuración de Express para analizar datos JSON y URL-encoded
-app.use(express.json({ limit: "50mb" }));
-app.use(express.urlencoded({ limit: "50mb", extended: true }));
+
+
+
+
+
+  // POST endpoint para el inicio de sesión
+  app.post("/login", async (req, res) => {
+    const { email, password } = req.body;
+  
+    try {
+      // Obtener el usuario por su email
+      const { data: user, error } = await supabase.auth.signInWithPassword({
+        email,
+        password,
+      });
+  
+      if (error || !user) {
+        // Si hay un error al autenticar, devolver un mensaje de error
+        return res.status(401).json({ error: "Credenciales inválidas" });
+      }
+  
+  
+      return res.json(userData);
+    } catch (error) {
+      // Si hay un error, devolver un mensaje de error
+      console.error("Error al iniciar sesión:", error.message);
+      return res.status(500).json({ error: "Error interno del servidor" });
+    }
+  });
+
+  app.get("/perfil/:user_id", async (req, res) => {
+    const user_id = req.params.user_id;
+  
+    try {
+      // Obtener el perfil del usuario especificado por user_id
+      const { data, error } = await supabase
+        .from('usuarios')
+        .select('nombre_usuario, foto_perfil')
+        .eq('id', user_id)
+        .single();
+  
+      if (error) {
+        console.error("Error en la consulta:", error);
+        return res.status(500).json({ error: error.message });
+      }
+  
+      if (!data) {
+        return res.status(404).json({ message: "Usuario no encontrado" });
+      }
+  
+      // Enviar el perfil del usuario como respuesta
+      res.json(data);
+    } catch (error) {
+      console.error("Error en la consulta:", error.message);
+      res.status(500).json({ error: error.message });
+    }
+  });
+  
+
+{/* 
 
 app.post("/login", async (req, res) => {
   const { correo, password } = req.body;
@@ -86,7 +121,6 @@ app.post("/login", async (req, res) => {
       req.session.usuario = usuarioAutenticado;
 
       // Agregar mensaje a la consola
-      console.log(`Usuario ${user[0].correo} ha iniciado sesión con éxito.`);
 
       return res.json(usuarioAutenticado);
     }
@@ -130,12 +164,10 @@ app.get("/perfil/:usuario_id", (req, res) => {
 
       // Verificar si se encontró un usuario con el usuario_id especificado
       if (results.length === 0) {
-        console.log("Usuario no encontrado");
         return res.status(404).json({ message: "Usuario no encontrado" });
       }
 
       // Si se encontró el usuario, enviar su perfil como respuesta
-      console.log("Perfil del usuario encontrado:", results[0]);
       res.json(results[0]); // Supongo que esperas un solo resultado
     }
   );
@@ -173,7 +205,6 @@ app.post("/registro", upload.single("foto_perfil"), async (req, res) => {
       ? path.basename(req.file.path)
       : "default.webp";
 
-    console.log("Datos recibidos en el servidor:", req.body);
 
     // Verificar que la contraseña sea una cadena de caracteres
     if (!password || typeof password !== "string") {
@@ -182,8 +213,6 @@ app.post("/registro", upload.single("foto_perfil"), async (req, res) => {
     }
 
     const hashedPassword = await bcrypt.hash(password, 10);
-    console.log("Contraseña recibida:", password);
-    console.log("Contraseña encriptada:", hashedPassword);
 
     const sqlQuery =
       "INSERT INTO usuarios (nombre_usuario, correo, telefono, password, foto_perfil) VALUES (?, ?, ?, ?, ?)";
@@ -247,7 +276,6 @@ app.post("/publicar", upload.single("imagen_contenido"), async (req, res) => {
           "INSERT INTO categorias (categoria_id, nombre_categoria) VALUES (?, ?)",
           [categoria_id, nombre_categoria]
         );
-      console.log("Nueva categoría insertada:", nombre_categoria);
     }
 
     // Insertar la publicación en la tabla de publicaciones (sin nombre_categoria)
@@ -345,7 +373,6 @@ app.post("/insertar-comentarios", async (req, res) => {
         console.error("Error al insertar el comentario:", error);
         return res.status(500).json({ error: "Error interno del servidor al insertar el comentario" });
       }
-      console.log("Comentario insertado correctamente");
       res.status(200).json({ message: "Comentario insertado correctamente", comentario_id: results.insertId });
     });
   } catch (error) {
@@ -354,6 +381,85 @@ app.post("/insertar-comentarios", async (req, res) => {
   }
 });
 
+// Ruta POST para insertar una respuesta a un comentario
+app.post("/comentarios/:comentario_id/respuestas", async (req, res) => {
+  try {
+    const comentario_id = req.params.comentario_id;
+    const { usuario_id, contenido, usuario_reply_id } = req.body;
+
+    if (!contenido) {
+      return res.status(400).json({ error: "El contenido de la respuesta es requerido" });
+    }
+
+    // Insertar la respuesta con el usuario_reply_id proporcionado
+    const sqlInsertQuery = "INSERT INTO comentarios (publicacion_id, usuario_id, usuario_reply_id, contenido, tiempo_comentario) VALUES (?, ?, ?, ?, NOW())";
+    connection.query(sqlInsertQuery, [comentario_id, usuario_id, usuario_reply_id, contenido], (error, results) => {
+      if (error) {
+        console.error("Error al insertar la respuesta:", error);
+        return res.status(500).json({ error: "Error interno del servidor al insertar la respuesta" });
+      }
+
+      // Enviar la respuesta insertada y las respuestas actualizadas
+      const sqlSelectQuery = "SELECT c.comentario_id, c.publicacion_id, c.usuario_id, c.contenido, c.tiempo_comentario, c.usuario_reply_id, u.nombre_usuario, u.foto_perfil FROM comentarios c JOIN usuarios u ON c.usuario_id = u.id WHERE c.comentario_id = ?"; // Cambiar c.publicacion_id por c.comentario_id para obtener solo la respuesta insertada
+      connection.query(sqlSelectQuery, [results.insertId], (error, respuestas) => {
+        if (error) {
+          console.error("Error al obtener la respuesta:", error);
+          return res.status(500).json({ error: "Error interno del servidor al obtener la respuesta" });
+        }
+        res.status(200).json({ message: "Respuesta insertada correctamente", comentario_id: results.insertId, respuesta: respuestas[0] });
+      });
+    });
+  } catch (error) {
+    console.error("Error al procesar la solicitud:", error);
+    res.status(500).json({ error: "Error interno del servidor al procesar la solicitud" });
+  }
+});
+
+
+
+
+app.get("/comentarios/:comentario_id/respuestas", async (req, res) => {
+  try {
+    const comentario_id = req.params.comentario_id;
+    const sqlSelectQuery = `
+      SELECT 
+        c.comentario_id, 
+        c.publicacion_id, 
+        c.usuario_id, 
+        c.contenido, 
+        c.tiempo_comentario, 
+        c.usuario_reply_id, 
+        u1.nombre_usuario AS nombre_usuario,
+        u1.id AS usuario_id,
+        u1.foto_perfil AS foto_perfil,
+        u2.nombre_usuario AS nombre_usuario_reply,
+        u2.foto_perfil AS foto_perfil_reply
+      FROM comentarios c 
+      JOIN usuarios u1 ON c.usuario_id = u1.id 
+      LEFT JOIN usuarios u2 ON c.usuario_reply_id = u2.id 
+      WHERE c.usuario_reply_id = ? 
+      ORDER BY c.comentario_id ASC
+    `;
+
+    connection.query(sqlSelectQuery, [comentario_id], (error, respuestas) => {
+      if (error) {
+        console.error("Error al obtener las respuestas:", error);
+        return res.status(500).json({ error: "Error interno del servidor al obtener las respuestas" });
+      }
+      res.status(200).json({ respuestas });
+    });
+  } catch (error) {
+    console.error("Error al procesar la solicitud:", error);
+    res.status(500).json({ error: "Error interno del servidor al procesar la solicitud" });
+  }
+});
+
+
+
+
+
+
+
 
 app.get("/comentarios/:publicacion_id", async (req, res) => {
   try {
@@ -361,12 +467,13 @@ app.get("/comentarios/:publicacion_id", async (req, res) => {
 
     // Consulta para obtener los comentarios
     const sqlQuery = `
-      SELECT comentarios.*, usuarios.nombre_usuario, usuarios.foto_perfil
-      FROM comentarios
-      INNER JOIN usuarios ON comentarios.usuario_id = usuarios.id
-      WHERE comentarios.publicacion_id = ?
-      ORDER BY comentarios.tiempo_comentario DESC
-    `;
+  SELECT comentarios.*, usuarios.nombre_usuario, usuarios.foto_perfil
+  FROM comentarios
+  INNER JOIN usuarios ON comentarios.usuario_id = usuarios.id
+  WHERE comentarios.publicacion_id = ?
+  ORDER BY comentarios.tiempo_comentario DESC
+`;
+
 
     // Consulta para contar los comentarios
     const countQuery = `
@@ -400,17 +507,56 @@ app.get("/comentarios/:publicacion_id", async (req, res) => {
     // Extraer el conteo de comentarios
     const totalComentarios = countResult[0].totalComentarios;
 
-    console.log("Comentarios obtenidos correctamente");
     res.status(200).json({ comentarios: commentsResult, totalComentarios });
   } catch (error) {
     console.error("Error al procesar la solicitud:", error);
     res.status(500).json({ error: "Error interno del servidor al procesar la solicitud" });
   }
 });
+app.delete("/comentarios/:comentario_id", async (req, res) => {
+  try {
+    const { comentario_id } = req.params;
+
+    const deleteQuery = `
+    DELETE FROM comentarios
+    WHERE comentario_id = ?
+  `;
 
 
+    const selectUsuarioQuery = `
+    SELECT u.nombre_usuario
+    FROM comentarios c
+    JOIN usuarios u ON c.usuario_reply_id = u.id
+    WHERE c.comentario_id = ?
+    
+    `;
 
+    // Obtener el nombre de usuario asociado al usuario_reply_id
+    connection.query(selectUsuarioQuery, [comentario_id], (error, results) => {
+      if (error) {
+        console.error("Error al obtener el nombre de usuario:", error);
+        res.status(500).json({ error: "Error interno del servidor al obtener el nombre de usuario" });
+        return;
+      }
 
+      console.log("Nombre de usuario:", results[0].nombre_usuario);
+    });
+
+    // Ejecutar la consulta para eliminar el comentario y sus respuestas
+    connection.query(deleteQuery, [comentario_id, comentario_id], (error, results) => {
+      if (error) {
+        console.error("Error al eliminar el comentario y sus respuestas:", error);
+        res.status(500).json({ error: "Error interno del servidor al eliminar el comentario y sus respuestas" });
+        return;
+      }
+
+      res.status(200).json({ message: "Comentario y sus respuestas eliminados exitosamente" });
+    });
+  } catch (error) {
+    console.error("Error al eliminar el comentario y sus respuestas:", error);
+    res.status(500).json({ error: "Error interno del servidor al eliminar el comentario y sus respuestas" });
+  }
+});
 
 
 
@@ -871,7 +1017,6 @@ app.get("/notificaciones/count/:usuario_id", async (req, res) => {
   }
 });
 */}
-
 
 
 

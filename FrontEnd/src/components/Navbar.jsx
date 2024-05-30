@@ -4,86 +4,29 @@ import { useState, useEffect } from "react";
 import Darkmode from "./DarkMode";
 import Categorias from "./Categorias";
 import { BiCategory } from "react-icons/bi";
-import { useNavigate } from "react-router-dom";
-import { useAuth, logout } from "../utils/auth";
 import { IoIosLogOut } from "react-icons/io";
-import axios from "axios";
+import { UserAuth } from "../context/AuthContext";
+import { Link } from "react-router-dom";
 
 const Navbar = () => {
   const [menuOpen, setMenuOpen] = useState(false);
   const [isCategoriasExpanded, setIsCategoriasExpanded] = useState(false);
-  const [usuario, setUsuario] = useState(null);
   const [, setLoading] = useState(true);
   const [, setError] = useState(null);
-  const { user } = useAuth();
-  const BASE_URL = "http://localhost:3307/uploads/";
+  const { user, handleSignOut } = UserAuth();
   const [notificacionesCount] = useState(0);
 
-  const navigate = useNavigate();
 
-  const handleLogout = () => {
-    logout();
-    navigate("/login");
-  };
 
-  useEffect(() => {
-    if (user) {
-      axios
-        .get(`http://localhost:3307/perfil/${user.id}`, {
-          withCredentials: true,
-        })
-        .then((response) => {
-          setUsuario(response.data);
-          setLoading(false);
-        })
-        .catch((error) => {
-          if (error.response && error.response.status === 401) {
-            console.error("Sesión expirada. Vuelve a iniciar sesión.");
-          } else {
-            setError(error.message || "Error al obtener el perfil");
-          }
-          setLoading(false);
-        });
-    }
-  }, [user]);
-
-  {
-    /*  useEffect(() => {
-   const obtenerCantidadNotificaciones = async () => {
-      if (user && user.id) {
-        try {
-          const response = await axios.get(
-            `http://localhost:3307/notificaciones/count/${user.id}`
-          );
-          setNotificacionesCount(response.data.total_notificaciones); // Ajuste aquí
-        } catch (error) {
-          console.error(
-            "Error al obtener la cantidad de notificaciones:",
-            error
-          );
-        }
-      }
-    };
-
-    if (user) {
-      obtenerCantidadNotificaciones();
-    }
-  }, [user]);
-*/
-  }
   useEffect(() => {
     const handleResize = () => {
-      // Actualizar el estado del menú basado en el ancho de la ventana
       setMenuOpen(window.innerWidth < 1024);
     };
 
-    // Manejar el evento de redimensionamiento de la ventana
     window.addEventListener("resize", handleResize);
 
-    // Llamar a la función de manejo del redimensionamiento al montar el componente
     handleResize();
 
-    // Limpiar el event listener al desmontar el componente
     return () => {
       window.removeEventListener("resize", handleResize);
     };
@@ -97,14 +40,13 @@ const Navbar = () => {
     setMenuOpen(!menuOpen);
   };
 
-  // Manejar clic en un enlace para cerrar el menú
   const handleLinkClick = () => {
     setMenuOpen(false);
   };
 
   return (
     <nav
-      className={`bg-gray-100 noto-sans lg:mt-10 p-4 z-10 lg:rounded-lg lg:border-2 border-slate-400/10   text-gray-800 lg:relative fixed  block lg:w-auto lg:h-fit  dark:bg-rincon dark:text-gray-100 ${
+      className={`bg-gray-100 lg:mt-10 p-4 z-10 lg:rounded-lg lg:border-2 border-slate-400/10 text-gray-800 lg:relative fixed block lg:w-auto lg:h-fit dark:bg-rincon dark:text-gray-100 ${
         menuOpen ? "h-auto w-screen" : "h-screen w-screen"
       }`}
     >
@@ -120,7 +62,6 @@ const Navbar = () => {
         {/* Logo and Branding */}
         <div className="flex items-center mb-5 lg:gap-10 gap-28">
           <a href="/" className="flex items-center">
-            <img src="/images/logo2.png" alt="Logo" className="h-8" />
             <span className="font-semibold text-lg flex gap-1 items-center">
               <span className="text-lg">Rincon</span>
               <span className="text-sm bg-rincon p-1 rounded-lg text-gray-100 dark:bg-slate-100 dark:text-rincon">
@@ -148,27 +89,37 @@ const Navbar = () => {
             </div>
           )}
           {user && (
-            <div className="font-semibold py-2 px-4 rounded-lg flex items-center justify-between mb-6">
+            <div className="font-semibold py-2 px-4 rounded-lg flex items-center justify-between">
               <div className="flex items-center">
-                {usuario && usuario.foto_perfil && (
-                  <a href={`/perfil/${user.id}`}>
+                {/* Foto de perfil y nombre de usuario registrado con Google */}
+                {user && (
+                  <div className="font-semibold rounded-lg flex items-center">
+                  <Link
+                    to={`/perfil/${user.id}`}
+                    className="flex items-center space-x-2"
+                  >
                     <img
-                      className="w-8 h-8 object-cover rounded-full mr-2"
-                      src={`${BASE_URL}${usuario.foto_perfil}`}
-                      alt={`Foto de perfil de ${usuario.nombre_usuario}`}
+                      className="w-8 h-8 object-cover rounded-full"
+                      src={user.user_metadata.avatar_url}
+                      alt={
+                        user.app_metadata.provider === 'facebook'
+                          ? user.user_metadata.nickname
+                          : user.user_metadata.full_name}
                     />
-                  </a>
+                    <span className="font-semibold text-gray-800 dark:text-gray-100">
+                      {user.app_metadata.provider === 'facebook'
+                        ? user.user_metadata.nickname
+                        : user.user_metadata.full_name}
+                    </span>
+                  </Link>
+                </div>
+                
                 )}
-                <a
-                  href={`/perfil/${user.id}`}
-                  className="text-gray-800 dark:text-gray-100 font-bold"
-                >
-                  {user.nombre_usuario}
-                </a>
               </div>
+
               <button
-                className="text-rincon text-2xl rounded-lg dark:text-gray-100"
-                onClick={handleLogout}
+                className="text-rincon text-2xl rounded-lg ml-4 dark:text-gray-100"
+                onClick={handleSignOut}
               >
                 <IoIosLogOut />
               </button>
@@ -179,7 +130,7 @@ const Navbar = () => {
           <a
             href="/inicio"
             onClick={handleLinkClick}
-            className=" hover:bg-gray-200 dark:hover:bg-rinconHover  py-2 px-4 rounded-lg flex items-center"
+            className=" hover:bg-gray-200 font-semibold dark:hover:bg-rinconHover py-2 px-4 rounded-lg flex items-center"
           >
             <Home className="mr-2" size={18} />
             Inicio
@@ -189,7 +140,7 @@ const Navbar = () => {
           <a
             href={user ? `/guardados/${user.id}` : "/guardados"}
             onClick={handleLinkClick}
-            className="hover:bg-gray-200 dark:hover:bg-rinconHover py-2 px-4 rounded-lg flex items-center"
+            className="hover:bg-gray-200 font-semibold dark:hover:bg-rinconHover py-2 px-4 rounded-lg flex items-center"
           >
             <Heart className="mr-2" size={18} />
             Guardados
@@ -202,7 +153,7 @@ const Navbar = () => {
               user ? `/bandeja-de-entrada/${user.id}` : "/bandeja-de-entrada"
             }
             onClick={handleLinkClick}
-            className="hover:bg-gray-200 dark:hover:bg-rinconHover py-2 px-4 rounded-lg flex items-center"
+            className="hover:bg-gray-200 font-semibold dark:hover:bg-rinconHover py-2 px-4 rounded-lg flex items-center"
           >
             <Inbox className="mr-2" size={18} />
             Bandeja de entrada
@@ -218,7 +169,7 @@ const Navbar = () => {
           <a
             href="/ayuda"
             onClick={handleLinkClick}
-            className="hover:bg-gray-200 dark:hover:bg-rinconHover py-2 px-4 rounded-lg flex items-center"
+            className="hover:bg-gray-200 font-semibold dark:hover:bg-rinconHover py-2 px-4 rounded-lg flex items-center"
           >
             <HelpCircle className="mr-2" size={18} />
             Ayuda
@@ -231,7 +182,7 @@ const Navbar = () => {
             onClick={handleToggleCategorias}
           >
             <BiCategory />
-            <span className="flex-1 ms-3 text-left rtl:text-right whitespace-nowrap">
+            <span className="flex-1 ms-3 font-semibold text-left rtl:text-right whitespace-nowrap">
               Categorías
             </span>
             <svg
@@ -252,7 +203,7 @@ const Navbar = () => {
           </button>
           <ul
             id="categorias-dropdown"
-            className={`py-2 space-y-2 ${
+            className={`py-2 space-y-2 font-semibold ${
               isCategoriasExpanded ? "block" : "hidden"
             }`}
           >

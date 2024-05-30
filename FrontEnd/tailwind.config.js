@@ -14,6 +14,16 @@ export default {
         rinconClaro: '#15282B',
         cremaoscuro: '#F5EDE8', // Ajusta el valor hexadecimal según tu preferencia
     },
+    animation: {
+      gradient: "gradient 8s linear infinite",
+    },
+    keyframes: {
+      gradient: {
+        to: {
+          backgroundPosition: "var(--bg-size) 0",
+        },
+      },
+    },
   },
 },
 plugins: [

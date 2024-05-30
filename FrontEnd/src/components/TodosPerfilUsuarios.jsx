@@ -1,39 +1,47 @@
 import { useState, useEffect } from "react";
-import axios from "axios";
 import { useParams } from "react-router-dom";
-import { useAuth } from "../utils/auth";
+import { UserAuth } from "../context/AuthContext";
 import { PlusSignSquareIcon, PencilEdit01Icon } from "../IconsSVG/Icons";
+import PropTypes from 'prop-types';
 
-const TodosUsuarios = () => {
-  const { usuario_id } = useParams();
+
+const TodosUsuarios = (props) => {
   const [usuario, setUsuario] = useState(null);
   const [loading, setLoading] = useState(true);
   const [, setError] = useState(null);
-  const BASE_URL = "http://localhost:3307/uploads/";
-  const { user } = useAuth();
+  const BASE_URL = "http://localhost:3000/uploads/";
+  const { user, handleSignOut } = UserAuth();
 
   useEffect(() => {
-    setLoading(true);
-    axios
-      .get(`http://localhost:3307/perfil/${usuario_id}`, {})
-      .then((response) => {
-        setUsuario(response.data);
-        setLoading(false);
-      })
-      .catch((error) => {
-        if (error.response && error.response.status === 401) {
-          console.error("Sesión expirada. Vuelve a iniciar sesión.");
-        } else {
-          setError(error.message || "Error al obtener el perfil");
-        }
-        setLoading(false);
-      });
-  }, [usuario_id]);
+    const fetchUserProfile = async () => {
+      try {
+        if (user) {
+          // Obtener el perfil del usuario actual desde Supabase
+          const { data, error } = await supabase
+            .from('usuarios')
+            .select('nombre_usuario, foto_perfil')
+            .eq('id', user.id)
+            .single();
 
-  if (loading) {
-    return (
-      <span className="loading loading-spinner loading-lg">Cargando...</span>
-    );
+          if (error) {
+            throw new Error(error.message);
+          }
+
+          setUsuario(data);
+          setLoading(false);
+        }
+      } catch (error) {
+        setError(error.message);
+        setLoading(false);
+      }
+    };
+
+    fetchUserProfile();
+  }, [props.user]);
+
+  if (!user) {
+    // Si el usuario no está disponible, muestra un mensaje de carga
+    return <span className="loading loading-spinner loading-lg">Cargando...</span>;
   }
 
   return (
@@ -57,20 +65,19 @@ const TodosUsuarios = () => {
               {usuario && usuario.nombre_usuario}
             </h2>
             {/* Botón de editar (si el usuario es el propietario del perfil) */}
-            {user && user.id === usuario.id && (
+            {user  && (
               <button className="flex items-center gap-1 px-3 py-1.5 text-xs font-bold bg-gray-200 hover:bg-gray-300 dark:text-gray-800 dark:bg-gray-100 rounded-md dark:hover:bg-gray-300 focus:outline-none">
                 <PencilEdit01Icon className="h-4 w-4" />
                 Editar
               </button>
             )}
             {/* Botón de seguir (si el usuario no es el propietario del perfil) */}
-            {!user ||
-              (user.id !== usuario.id && (
+            {user  && (
                 <button className="flex items-center gap-1 px-3 py-1.5 text-xs font-bold bg-gray-200 hover:bg-gray-300 dark:text-gray-800 dark:bg-gray-100 rounded-md dark:hover:bg-gray-300 focus:outline-none">
                   <PlusSignSquareIcon className="h-4 w-4" />
                   Seguir
                 </button>
-              ))}
+              )}
           </div>
           <div className="flex flex-col gap-1 text-sm text-gray-500 dark:text-gray-400 mt-3">
             <span>
@@ -87,6 +94,11 @@ const TodosUsuarios = () => {
       </div>
     </div>
   );
+};
+
+// Define PropTypes para el componente
+TodosUsuarios.propTypes = {
+  user: PropTypes.object.isRequired // Define la forma de la prop 'user'
 };
 
 export default TodosUsuarios;
