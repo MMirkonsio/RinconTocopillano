@@ -1,0 +1,18 @@
+# Dependencias (se reinstalan con npm install)
+node_modules/
+
+# Configuración local con contraseñas y secretos (ver los .env.example)
+.env
+.env.*
+!.env.example
+
+# Compilados y registros
+FrontEnd/dist/
+*.log
+
+# Imágenes que suben los usuarios: son datos, no código. Las que ya estaban en el
+# repositorio (datos de ejemplo de rinconbd.sql) se siguen versionando.
+Backend/uploads/*
+
+# Ajustes personales de Claude Code
+.claude/settings.local.json
