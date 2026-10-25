@@ -10,8 +10,11 @@ const { noEncontrado, manejarErrores } = require("./middlewares/errores");
 
 const app = express();
 
+// Detrás de proxies HTTPS: cuántos saltos hay entre el usuario y la app. Con Vercel delante
+// de Render son 2 (Vercel → Render → app); así req.ip es la IP real del usuario, que usa
+// el límite de intentos de login.
 if (config.isProduction) {
-  app.set("trust proxy", 1); // detrás de un proxy HTTPS (Railway, Render, nginx...)
+  app.set("trust proxy", Number(process.env.TRUST_PROXY) || 1);
 }
 
 app.use(

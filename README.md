@@ -120,6 +120,36 @@ Todas las rutas cuelgan de `/api` (la lista completa está al inicio de
 `PATCH /api/perfil`, `PUT|DELETE /api/guardados/:id`. `GET /api/salud` comprueba que la API y la base
 de datos responden.
 
+## Despliegue
+
+| Parte | Dónde | Configuración |
+|---|---|---|
+| Frontend | Vercel | `vercel.json` (compila `FrontEnd/`, Node 24 por el `package.json` de la raíz) |
+| Backend | Render | `render.yaml` (servicio `rincon-tocopillano-api`, carpeta `Backend/`) |
+| Base de datos | MySQL alojado (p. ej. Aiven) | `DATABASE_URL`, `DB_SSL`, `DB_SSL_CA` en Render |
+
+Vercel reenvía `/api/*` y `/uploads/*` al backend de Render, así que para el navegador todo es
+el mismo sitio y la cookie de sesión funciona sin problemas de dominios cruzados. Si el
+servicio de Render queda con otra dirección, hay que cambiarla en `vercel.json`.
+
+Pasos:
+
+1. **MySQL:** crear un servicio MySQL (en Aiven, plan gratis) y cargar el esquema con su
+   cadena de conexión:
+   ```bash
+   mysql --ssl-ca=ca.pem -h HOST -P PUERTO -u avnadmin -p < Backend/database/rinconbd.sql
+   ```
+2. **Render:** *New → Blueprint* con este repositorio. Completar `DATABASE_URL` (la cadena
+   de conexión de Aiven) y `DB_SSL_CA` (el contenido del certificado CA). `SESSION_SECRET`
+   se genera solo.
+3. **Vercel:** nada más que hacer; cada push despliega el frontend.
+
+**Limitación del plan gratis de Render:** el disco no es permanente. Las imágenes que suban
+los usuarios se pierden cuando el servicio se reinicia o se vuelve a desplegar (las de los
+datos de ejemplo vienen con el código y no se pierden). Para producción real conviene guardar
+las imágenes en un servicio de archivos como Cloudinary o S3. El plan gratis también "duerme"
+el servicio tras 15 minutos sin visitas; la primera petición después tarda unos segundos.
+
 ## Tests
 
 ```bash
