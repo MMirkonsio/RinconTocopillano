@@ -1,0 +1,8 @@
+{
+  "name": "rincon-tocopillano",
+  "private": true,
+  "description": "Raíz del repositorio. El código está en FrontEnd/ y Backend/; este archivo solo fija la versión de Node para el despliegue en Vercel (ver vercel.json).",
+  "engines": {
+    "node": "24.x"
+  }
+}
