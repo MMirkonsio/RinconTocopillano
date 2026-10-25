@@ -1,14 +1,8 @@
 {
-  "name": "rincontocopillanobeta",
-  "version": "1.0.0",
-  "description": "",
-  "main": "index.js",
-  "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
-  },
-  "author": "",
-  "license": "ISC",
-  "dependencies": {
-    "react-magic-motion": "^1.1.2"
+  "name": "rincon-tocopillano",
+  "private": true,
+  "description": "Raíz del repositorio. El código está en FrontEnd/ y Backend/; este archivo solo fija la versión de Node para el despliegue en Vercel (ver vercel.json).",
+  "engines": {
+    "node": "24.x"
   }
 }

@@ -1,14 +1,25 @@
 <!doctype html>
-<html lang="en">
+<html lang="es">
   <head>
     <meta charset="UTF-8" />
-    <link rel="icon" type="image/svg+xml" href="./images/logo2.png" />
+    <link rel="icon" type="image/png" href="/images/LogoIcon.png" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    
-    <title>Rincon Tocopillano</title>
+    <meta name="description" content="Rincón Tocopillano: compra, vende y comparte en tu ciudad." />
+    <meta name="theme-color" content="#f4f6f8" media="(prefers-color-scheme: light)" />
+    <meta name="theme-color" content="#0b1416" media="(prefers-color-scheme: dark)" />
+    <title>Rincón Tocopillano</title>
+    <script>
+      // Aplicar el tema antes de pintar para evitar el parpadeo blanco en modo oscuro
+      try {
+        var tema = localStorage.getItem("color-theme");
+        if (tema === "dark" || (!tema && matchMedia("(prefers-color-scheme: dark)").matches)) {
+          document.documentElement.classList.add("dark");
+        }
+      } catch (e) {}
+    </script>
   </head>
   <body>
     <div id="root"></div>
-    <script type="module" src="./src/main.jsx"></script>
+    <script type="module" src="/src/main.jsx"></script>
   </body>
 </html>

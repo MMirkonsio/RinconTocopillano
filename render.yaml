@@ -1,0 +1,31 @@
+# Blueprint de Render para el backend (Express). En Render: New → Blueprint → este repo.
+# La base de datos MySQL va aparte (por ejemplo, Aiven): ver "Despliegue" en el README.
+services:
+  - type: web
+    name: rincon-tocopillano-api
+    runtime: node
+    plan: free
+    rootDir: Backend
+    buildCommand: npm ci --omit=dev
+    startCommand: npm start
+    healthCheckPath: /api/salud
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: NODE_VERSION
+        value: "24"
+      # Vercel reenvía /api a este servicio: el usuario → Vercel → Render → app
+      - key: TRUST_PROXY
+        value: "2"
+      - key: SESSION_SECRET
+        generateValue: true
+      # Cadena de conexión de MySQL: mysql://usuario:clave@host:puerto/base
+      - key: DATABASE_URL
+        sync: false
+      - key: DB_DATABASE
+        value: rinconbd2
+      - key: DB_SSL
+        value: "true"
+      # Certificado CA del proveedor de MySQL (texto PEM completo)
+      - key: DB_SSL_CA
+        sync: false

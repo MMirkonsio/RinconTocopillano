@@ -1,0 +1,12 @@
+{
+  "$schema": "https://openapi.vercel.sh/vercel.json",
+  "framework": null,
+  "installCommand": "npm ci --prefix FrontEnd",
+  "buildCommand": "npm run build --prefix FrontEnd",
+  "outputDirectory": "FrontEnd/dist",
+  "rewrites": [
+    { "source": "/api/:ruta*", "destination": "https://rincon-tocopillano-api.onrender.com/api/:ruta*" },
+    { "source": "/uploads/:archivo*", "destination": "https://rincon-tocopillano-api.onrender.com/uploads/:archivo*" },
+    { "source": "/((?!assets/|images/|static/).*)", "destination": "/index.html" }
+  ]
+}

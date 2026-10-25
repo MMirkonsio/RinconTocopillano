@@ -1,16 +1,28 @@
-import React from 'react';
-import { createRoot } from 'react-dom/client';
-import App from './App'; // Ajusta la ruta según tu estructura de archivos
-import { BrowserRouter } from 'react-router-dom';
-import '@fontsource-variable/inter';  
-import "./index.css";
-const container = document.getElementById('root');
-const root = createRoot(container);
+import ReactDOM from 'react-dom/client'
+import axios from 'axios'
+import App from './App.jsx'
+import { AuthProvider, verificarSesion } from './auth/AuthContext'
+import './index.css'
 
-root.render(
-  <React.StrictMode>
-    <BrowserRouter>
+// Enviar siempre la cookie de sesión al backend
+axios.defaults.withCredentials = true;
+
+// Si el backend dice que la sesión expiró, limpiar la copia local y pedir login
+axios.interceptors.response.use(undefined, (error) => {
+  // /auth/me se usa al cargar y /auth/login responde 401 con credenciales malas: ahí no se redirige
+  const url = error.config?.url ?? '';
+  const ignorar = url.endsWith('/auth/me') || url.endsWith('/auth/login');
+  if (error.response?.status === 401 && localStorage.getItem('user') && !ignorar) {
+    localStorage.removeItem('user');
+    window.location.assign('/iniciar-sesion');
+  }
+  return Promise.reject(error);
+});
+
+verificarSesion().finally(() => {
+  ReactDOM.createRoot(document.getElementById('root')).render(
+    <AuthProvider>
       <App />
-    </BrowserRouter>
-  </React.StrictMode>
-);
+    </AuthProvider>
+  )
+});

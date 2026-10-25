@@ -1,102 +1,73 @@
-import { Link, useNavigate } from "react-router-dom";
 import { useState } from "react";
-import Navbar2 from "../components/Navbar2";
-import { UserAuth } from "../context/AuthContext";
-import { FcGoogle } from "react-icons/fc";
-import { FaFacebook } from "react-icons/fa";
-import supabase from "../supabase/supabase.config"
-import AnimatedGradientText from "../components/magicui/animated-shiny-text";
-import { cn } from "../components/magicui/lib/utils";
+import { Link, useLocation, useNavigate } from "react-router-dom";
+import { LuCircleAlert, LuLock, LuMail } from "react-icons/lu";
+import { useAuth } from "../auth/AuthContext";
+import { mensajeError, toast } from "../lib/alertas";
+import { rutas } from "../lib/rutas";
+import AuthLayout, { Campo, CampoPassword } from "../components/layout/AuthLayout";
+import { useTitulo } from "../lib/useTitulo";
 
 const InicioSesion = () => {
-  const { handleSignInWithGoogle, signInWithFacebook, setUser } = UserAuth();
+  useTitulo("Iniciar sesión");
   const navigate = useNavigate();
-  const [email, setEmail] = useState("");
+  const location = useLocation();
+  const { iniciarSesion } = useAuth();
+  const [correo, setCorreo] = useState("");
   const [password, setPassword] = useState("");
-  const [errorText, setErrorText] = useState("");
+  const [error, setError] = useState("");
+  const [cargando, setCargando] = useState(false);
 
-  const handleInicioSesion = async () => {
+  const enviar = async (e) => {
+    e.preventDefault();
+    setError("");
+    setCargando(true);
     try {
-      const { data, error } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
-
-      if (error) {
-        setErrorText("Credenciales inválidas. Verifica tu email y contraseña.");
-        return;
-      }
-
-      if (data.user) {
-        setUser(data.user);
-        navigate("/inicio");
-      }
-    } catch (error) {
-      console.error("Error al iniciar sesión:", error.message);
-      setErrorText(
-        "Ha ocurrido un error. Por favor, intenta nuevamente más tarde."
+      const usuario = await iniciarSesion(correo.trim(), password);
+      toast.success(`¡Hola de nuevo, ${usuario.nombre_usuario}!`);
+      navigate(location.state?.desde ?? rutas.inicio, { replace: true });
+    } catch (err) {
+      setError(
+        err.response?.status === 401 ? "Correo o contraseña incorrectos." : mensajeError(err, "No se pudo iniciar sesión.")
       );
-    }
-  };
-
-  const handleSignInWithGoogleClick = async () => {
-    try {
-      await handleSignInWithGoogle();
-    } catch (error) {
-      setErrorText(
-        "Error al iniciar sesión con Google. Por favor, intenta nuevamente."
-      );
-    }
-  };
-
-  const handleSignInWithFacebookClick = async () => {
-    try {
-      await signInWithFacebook();
-    } catch (error) {
-      setErrorText(
-        "Error al iniciar sesión con Facebook. Por favor, intenta nuevamente."
-      );
+    } finally {
+      setCargando(false);
     }
   };
 
   return (
-    <div className="flex justify-center items-center min-h-[100dvh] bg-gray-100 dark:bg-rincon">
-      <Navbar2 />
-      <div className="w-full max-w-[500px] p-4 bg-gray-100 lg:border lg:border-gray-300 rounded-lg sm:p-6 md:p-8 dark:bg-rincon dark:border-gray-700">
-        <form
-          onSubmit={(e) => {
-            e.preventDefault();
-            handleInicioSesion();
-          }}
-          className="mt-8 dark:text-gray-100 text-rincon"
-        >
-          <AnimatedGradientText>
-            <span
-              className={cn(
-                `text-5xl text-center mb-6 inline animate-gradient bg-gradient-to-r from-[#ffaa40] via-[#9c40ff] to-[#ffaa40] bg-[length:var(--bg-size)_100%] bg-clip-text text-transparent`
-              )}
-            >
-              Bienvenido al Rincon Tocopillano!
-            </span>
-          </AnimatedGradientText>
-
-          <button
-            onClick={handleSignInWithGoogleClick}
-            className="flex mb-3 gap-2 items-center justify-center font-semibold rounded-lg text-gray-100 bg-rincon hover:bg-rinconHover dark:hover:bg-gray-200 dark:text-rincon dark:bg-gray-100 w-full p-3"
-          >
-            <FcGoogle style={{ fontSize: "1.5rem" }} />
-            Iniciar con Google
-          </button>
-          <button
-            onClick={handleSignInWithFacebookClick}
-            className="flex gap-2 items-center justify-center font-semibold rounded-lg text-gray-100 bg-rincon hover:bg-rinconHover dark:hover:bg-gray-200 dark:text-rincon dark:bg-gray-100 w-full p-3"
-          >
-            <FaFacebook style={{ fontSize: "1.5rem" }} />
-            Iniciar con Facebook
-          </button>
-        </form>
-      </div>
-    </div>
+    <AuthLayout titulo="Bienvenido de vuelta" subtitulo="Inicia sesión para publicar, comentar y guardar lo que te guste.">
+      <form onSubmit={enviar} className="space-y-4">
+        {error && (
+          <div role="alert" className="flex items-start gap-2 rounded-xl bg-red-50 p-3 text-sm text-red-700 dark:bg-red-500/10 dark:text-red-300">
+            <LuCircleAlert className="mt-0.5 size-4 shrink-0" /> {error}
+          </div>
+        )}
+        <Campo id="correo" etiqueta="Correo electrónico" Icono={LuMail}>
+          <input
+            id="correo"
+            type="email"
+            value={correo}
+            onChange={(e) => setCorreo(e.target.value)}
+            autoComplete="email"
+            required
+            placeholder="tucorreo@ejemplo.com"
+            className="campo pl-10"
+          />
+        </Campo>
+        <Campo id="password" etiqueta="Contraseña" Icono={LuLock}>
+          <CampoPassword id="password" value={password} onChange={(e) => setPassword(e.target.value)} autoComplete="current-password" Icono={LuLock} />
+        </Campo>
+        <button type="submit" disabled={cargando} className="btn-primario w-full py-2.5">
+          {cargando ? "Entrando…" : "Iniciar sesión"}
+        </button>
+      </form>
+      <p className="mt-8 text-center text-sm text-suave">
+        ¿No tienes cuenta?{" "}
+        <Link to={rutas.registro} className="font-semibold text-mar-600 hover:underline dark:text-mar-300">
+          Regístrate gratis
+        </Link>
+      </p>
+    </AuthLayout>
   );
 };
 
